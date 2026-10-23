@@ -1,0 +1,10 @@
+.env
+node_modules/
+backups/
+*.log
+.DS_Store
+app/.expo/
+app/dist/
+app/ios/
+app/android/
+bench/results/*.raw.json

@@ -1,0 +1,53 @@
+# ИС «ТехноПрокат»: СУБД PostgreSQL + серверная часть (REST API).
+# Запуск: cp .env.example .env (заменить пароли) && docker compose up -d --build
+name: technoprokat
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: technoprokat
+      POSTGRES_USER: technoprokat_owner
+      POSTGRES_PASSWORD: ${DB_OWNER_PASSWORD:?задайте DB_OWNER_PASSWORD в .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?задайте APP_DB_PASSWORD в .env}
+      TZ: Europe/Kaliningrad
+      PGTZ: Europe/Kaliningrad
+    volumes:
+      - pgdata:/var/lib/postgresql/data      # данные переживают пересоздание контейнера (НТ-08)
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${DB_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U technoprokat_owner -d technoprokat"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Одноразовая служба: применяет миграции от имени владельца БД и завершается
+  migrate:
+    build: { context: ., dockerfile: api/Dockerfile }
+    command: ["node", "src/migrate.js"]
+    environment:
+      DATABASE_URL: postgres://technoprokat_app:${APP_DB_PASSWORD}@db:5432/technoprokat
+      OWNER_DATABASE_URL: postgres://technoprokat_owner:${DB_OWNER_PASSWORD}@db:5432/technoprokat
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    build: { context: ., dockerfile: api/Dockerfile }
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://technoprokat_app:${APP_DB_PASSWORD}@db:5432/technoprokat
+      JWT_SECRET: ${JWT_SECRET:?задайте JWT_SECRET в .env}
+      LOGIN_RATE_MAX: ${LOGIN_RATE_MAX:-30}
+      TZ: Europe/Kaliningrad
+    ports:
+      - "${API_PORT:-3100}:3100"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata:
