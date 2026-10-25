@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "ТехноПрокат",
+    "slug": "technoprokat",
+    "scheme": "technoprokat",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0D10",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "local.technoprokat.app"
+    },
+    "android": {
+      "package": "local.technoprokat.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0D10",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-image",
+      "expo-sharing"
+    ],
+    "extra": {
+      "apiUrl": "http://localhost:3100",
+      "accentColor": "#F5A524",
+      "organization": "ООО «ТехноПрокат»"
+    }
+  }
+}
