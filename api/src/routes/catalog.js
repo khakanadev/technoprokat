@@ -70,6 +70,15 @@ catalogRouter.delete('/equipment/:id', allow('admin'), async (req, res) => {
   res.status(204).end();
 });
 
+// Список ответственных для фильтра аренд (ФТ-10); контакты сотрудников не раскрываются
+catalogRouter.get('/staff', allow('manager', 'admin'), async (_req, res) => {
+  const { rows } = await query(
+    `SELECT u.id, u.full_name FROM users u JOIN roles r ON r.id = u.role_id
+      WHERE r.code IN ('manager', 'admin') AND u.is_active ORDER BY u.full_name`,
+  );
+  res.json(rows);
+});
+
 // ФТ-23: справочник категорий
 catalogRouter.get('/categories', async (_req, res) => {
   const { rows } = await query(
