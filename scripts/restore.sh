@@ -1,0 +1,27 @@
+#!/bin/sh
+# Восстановление БД из резервной копии (НТ-02, НТ-04).
+# Запуск: ./scripts/restore.sh backups/technoprokat_YYYYMMDD_HHMMSS.dump[.enc]
+# На время восстановления API останавливается, чтобы никто не записывал данные.
+set -eu
+cd "$(dirname "$0")/.."
+[ -f .env ] && . ./.env
+
+FILE=${1:?укажите файл резервной копии}
+[ -f "$FILE" ] || { echo "Файл $FILE не найден"; exit 1; }
+
+started=$(date +%s)
+docker compose stop api
+
+case "$FILE" in
+  *.enc)
+    : "${BACKUP_KEY_FILE:?для зашифрованной копии задайте BACKUP_KEY_FILE}"
+    openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in "$FILE" -pass "file:$BACKUP_KEY_FILE" ;;
+  *) cat "$FILE" ;;
+esac | docker compose exec -T db pg_restore -U technoprokat_owner -d technoprokat --clean --if-exists --no-owner --single-transaction
+
+# Права учётной записи приложения восстанавливаются вместе с объектами; проверяем их явно
+docker compose exec -T db psql -U technoprokat_owner -d technoprokat -q -v ON_ERROR_STOP=1 -f - < db/migrations/004_app_role.sql
+
+docker compose start api
+echo "Восстановление завершено за $(( $(date +%s) - started )) с"
+./scripts/db-stats.sh
