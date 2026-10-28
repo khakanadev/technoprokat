@@ -12,8 +12,9 @@
     "start": "node src/server.js",
     "migrate": "node src/migrate.js",
     "seed": "node src/seed.js",
-    "test": "node --test --test-concurrency=1 ../tests/",
-    "lint": "eslint src ../tests ../bench"
+    "test": "node --test --test-concurrency=1 'test/*.test.js'",
+    "lint": "eslint src test bench",
+    "bench": "node bench/run.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
