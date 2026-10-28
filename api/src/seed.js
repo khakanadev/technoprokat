@@ -68,9 +68,10 @@ export async function seed(url = config.ownerDatabaseUrl) {
   try {
     await client.query('BEGIN');
     await client.query('TRUNCATE rental_events, rental_items, rentals, equipment, categories, users RESTART IDENTITY CASCADE');
-    const hash = await bcrypt.hash(SEED_PASSWORD, config.bcryptRounds);
     const userIds = [];
     for (const [email, name, phone, role] of USERS) {
+      // Хеш вычисляется для каждого пользователя: у каждого своя соль (дефект Д-01)
+      const hash = await bcrypt.hash(SEED_PASSWORD, config.bcryptRounds);
       const { rows } = await client.query(
         `INSERT INTO users (email, password_hash, full_name, phone, role_id, created_at)
          VALUES ($1, $2, $3, $4, (SELECT id FROM roles WHERE code = $5), '2026-03-01 10:00+02') RETURNING id`,

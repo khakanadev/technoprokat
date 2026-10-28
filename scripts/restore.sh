@@ -20,7 +20,8 @@ case "$FILE" in
 esac | docker compose exec -T db pg_restore -U technoprokat_owner -d technoprokat --clean --if-exists --no-owner --single-transaction
 
 # Права учётной записи приложения восстанавливаются вместе с объектами; проверяем их явно
-docker compose exec -T db psql -U technoprokat_owner -d technoprokat -q -v ON_ERROR_STOP=1 -f - < db/migrations/004_app_role.sql
+cat db/migrations/004_app_role.sql db/migrations/005_app_delete_grants.sql \
+  | docker compose exec -T db psql -U technoprokat_owner -d technoprokat -q -v ON_ERROR_STOP=1 -f -
 
 docker compose start api
 echo "Восстановление завершено за $(( $(date +%s) - started )) с"
