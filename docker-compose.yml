@@ -17,7 +17,8 @@ services:
       - pgdata:/var/lib/postgresql/data      # данные переживают пересоздание контейнера (НТ-08)
       - ./db/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "${DB_PORT:-55432}:5432"
+      # СУБД доступна только с самого сервера (администрирование, тесты), не из сети
+      - "127.0.0.1:${DB_PORT:-55432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U technoprokat_owner -d technoprokat"]
       interval: 5s
