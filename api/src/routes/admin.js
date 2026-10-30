@@ -72,16 +72,23 @@ adminRouter.post('/users', async (req, res) => {
 });
 
 adminRouter.patch('/users/:id', async (req, res) => {
-  const { role, is_active: isActive } = req.body ?? {};
+  const { role, is_active: isActive, password } = req.body ?? {};
+  // Временный пароль, который администратор сообщает пользователю при утере доступа
+  let hash = null;
+  if (password !== undefined) {
+    checkPasswordPolicy(password);
+    hash = await hashPassword(password);
+  }
   if (req.params.id === req.user.id && (isActive === false || (role && role !== 'admin'))) {
     throw forbidden('Нельзя заблокировать себя или снять с себя роль администратора');
   }
   const { rows } = await query(
     `UPDATE users SET role_id = coalesce((SELECT id FROM roles WHERE code = $2), role_id),
-                      is_active = coalesce($3, is_active)
+                      is_active = coalesce($3, is_active),
+                      password_hash = coalesce($4, password_hash)
       WHERE id = $1 RETURNING id, email, full_name, is_active,
             (SELECT code FROM roles WHERE id = role_id) AS role`,
-    [req.params.id, role ?? null, isActive ?? null],
+    [req.params.id, role ?? null, isActive ?? null, hash],
   );
   if (!rows.length) throw notFound('Пользователь не найден');
   if (role && rows[0].role !== role) throw badRequest('Неизвестная роль');
