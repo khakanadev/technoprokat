@@ -61,6 +61,21 @@ export default function Users() {
 function UserSheet({ user, isMe, onClose, onChanged }: { user: AdminUser; isMe: boolean; onClose: () => void; onChanged: () => void }) {
   const [role, setRole] = useState<Role>(user.role);
   const [confirm, setConfirm] = useState<null | 'role' | 'block'>(null);
+  const [tempPassword, setTempPassword] = useState('');
+  const [passError, setPassError] = useState<string | null>(null);
+  const [passDone, setPassDone] = useState(false);
+
+  // Временный пароль при утере доступа: администратор сообщает его пользователю лично
+  async function setPassword() {
+    setPassError(null);
+    try {
+      await api(`/admin/users/${user.id}`, { method: 'PATCH', body: { password: tempPassword } });
+      setTempPassword('');
+      setPassDone(true);
+    } catch (e) {
+      setPassError((e as Error).message);
+    }
+  }
   if (confirm) {
     const block = confirm === 'block';
     return (
@@ -94,6 +109,13 @@ function UserSheet({ user, isMe, onClose, onChanged }: { user: AdminUser; isMe: 
           {ROLES.map((r) => <Chip key={r} label={ROLE_TITLE[r]} active={role === r} onPress={() => !isMe && setRole(r)} />)}
         </View>
       </View>
+      {!isMe ? (
+        <View style={{ gap: space.sm }}>
+          <Field label="Временный пароль" value={tempPassword} onChangeText={setTempPassword} hint="Не менее 10 символов; сообщите его пользователю лично" error={passError} secureTextEntry />
+          {passDone ? <Banner text="Пароль изменён" tone="accent" /> : null}
+          <Button title="Задать временный пароль" variant="secondary" compact disabled={tempPassword.length < 10} onPress={setPassword} />
+        </View>
+      ) : null}
     </Sheet>
   );
 }
