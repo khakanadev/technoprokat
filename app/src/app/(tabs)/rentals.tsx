@@ -1,4 +1,3 @@
-// Список аренд (ФТ-09, ФТ-10): клиент видит свои, сотрудник — все с фильтрами
 import { useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';

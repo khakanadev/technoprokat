@@ -19,7 +19,6 @@ function RootStack() {
   }
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-      {/* Без входа доступны только вход и регистрация */}
       <Stack.Protected guard={!user}>
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />

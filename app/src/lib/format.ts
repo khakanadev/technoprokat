@@ -5,7 +5,6 @@ const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 export const rub = (n: number) =>
   `${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₽`;
 
-// Даты API приходят строкой ГГГГ-ММ-ДД; разбор без часового пояса
 export function parseDate(s: string) {
   const [y, m, d] = s.slice(0, 10).split('-').map(Number);
   return new Date(y, m - 1, d);

@@ -1,4 +1,3 @@
-// Форма авторизации (ФТ-02)
 import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, type TextInputInstance } from 'react-native';
 import { Link } from 'expo-router';

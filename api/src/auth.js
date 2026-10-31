@@ -16,8 +16,6 @@ export function checkPasswordPolicy(password) {
 export const signToken = (user) =>
   jwt.sign({ sub: user.id, role: user.role }, config.jwtSecret, { expiresIn: config.jwtTtl });
 
-// Проверка токена и актуальности учётной записи при каждом запросе:
-// заблокированный пользователь или пользователь со сменённой ролью сразу теряет прежние права
 export async function authenticate(req, _res, next) {
   const header = req.headers.authorization ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -39,6 +37,5 @@ export async function authenticate(req, _res, next) {
   next();
 }
 
-// Матрица доступа: перечень ролей, которым разрешена операция
 export const allow = (...roles) => (req, _res, next) =>
   roles.includes(req.user.role) ? next() : next(forbidden());

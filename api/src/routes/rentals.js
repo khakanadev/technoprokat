@@ -9,7 +9,6 @@ export const rentalsRouter = Router();
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const isStaff = (user) => user.role === 'admin' || user.role === 'manager';
 
-// Загрузка аренды с проверкой видимости: клиент видит только свои аренды (ФТ-09, ЗИ-09)
 async function loadRental(db, id, user) {
   const { rows } = await db.query(
     `SELECT t.*, c.full_name AS client_name, c.phone AS client_phone, c.email AS client_email,
@@ -26,7 +25,6 @@ async function loadRental(db, id, user) {
   return rental;
 }
 
-// ФТ-09, ФТ-10: список с фильтрами по состоянию, менеджеру, датам начала, просрочке и поиском
 rentalsRouter.get('/', async (req, res) => {
   const { status, manager_id: managerId, from, to, overdue, q, page = '1' } = req.query;
   if ((from && !DATE_RE.test(from)) || (to && !DATE_RE.test(to))) throw badRequest('Даты в формате ГГГГ-ММ-ДД');
@@ -85,7 +83,6 @@ function validateRentalInput({ date_from: from, date_to: to, equipment_ids: ids 
   return [...new Set(ids.map(Number))];
 }
 
-// Позиции копируют цену за сутки из каталога; неактивная техника не принимается (ФТ-07)
 async function insertItems(db, rentalId, ids) {
   const { rows } = await db.query(
     `INSERT INTO rental_items (rental_id, equipment_id, price_per_day)
@@ -96,7 +93,6 @@ async function insertItems(db, rentalId, ids) {
   if (rows.length !== ids.length) throw badRequest('Выбрана неактивная или несуществующая техника');
 }
 
-// ФТ-07: заявку создаёт клиент
 rentalsRouter.post('/', allow('client'), async (req, res) => {
   const ids = validateRentalInput(req.body ?? {});
   const id = await transaction(async (db) => {
@@ -115,7 +111,6 @@ rentalsRouter.post('/', allow('client'), async (req, res) => {
   res.status(201).json(await loadRental({ query }, id, req.user));
 });
 
-// ФТ-08: изменение дат и состава только в состоянии «Новая»
 rentalsRouter.patch('/:id', allow('client', 'manager', 'admin'), async (req, res) => {
   const ids = validateRentalInput(req.body ?? {});
   await transaction(async (db) => {
@@ -135,8 +130,6 @@ rentalsRouter.patch('/:id', allow('client', 'manager', 'admin'), async (req, res
 
 const CONDITIONS = ['ok', 'service', 'broken'];
 
-// ФТ-11 – ФТ-16: смена состояния выполняется функцией БД в одной транзакции с записью истории;
-// при приёме (returned) дополнительно фиксируется состояние каждой единицы (ФТ-13)
 rentalsRouter.post('/:id/status', async (req, res) => {
   const { to, conditions = {} } = req.body ?? {};
   if (typeof to !== 'string') throw badRequest('Не указано новое состояние');
@@ -156,7 +149,6 @@ rentalsRouter.post('/:id/status', async (req, res) => {
   res.json(await loadRental({ query }, req.params.id, req.user));
 });
 
-// ФТ-19: комментарии клиента (к своим арендам) и сотрудников
 rentalsRouter.post('/:id/comments', async (req, res) => {
   const text = req.body?.text?.trim();
   if (!text) throw badRequest('Комментарий не может быть пустым');

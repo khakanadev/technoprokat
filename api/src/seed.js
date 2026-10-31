@@ -1,6 +1,3 @@
-// Тестовые данные: 5 пользователей трёх ролей, 4 категории, 16 единиц техники, 15 аренд.
-// Скрипт можно выполнять повторно: предметные данные пересоздаются (СП-03).
-// Персональные данные вымышленные.
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
@@ -18,7 +15,6 @@ const USERS = [
 
 const CATEGORIES = ['Электроинструмент', 'Строительное оборудование', 'Уборочная техника', 'Леса и вышки'];
 
-// [название, категория, инв. номер, цена/сутки, залог, фото]
 const EQUIPMENT = [
   ['Перфоратор Makita HR2470', 0, 'ЭИ-001', 650, 5000, 'hammer-drill.jpg'],
   ['Перфоратор Bosch GBH 2-26', 0, 'ЭИ-002', 700, 5000, 'hammer-drill-2.jpg'],
@@ -38,7 +34,6 @@ const EQUIPMENT = [
   ['Стремянка алюминиевая 3 м', 3, 'ЛВ-003', 200, 2000, 'ladder.jpg'],
 ];
 
-// [клиент, менеджер, инв. номера, начало, окончание, конечное состояние]
 const RENTALS = [
   [3, 1, ['ЭИ-001'], '2026-03-02', '2026-03-04', 'closed'],
   [4, 2, ['УТ-001', 'УТ-002'], '2026-03-14', '2026-03-15', 'closed'],
@@ -70,7 +65,6 @@ export async function seed(url = config.ownerDatabaseUrl) {
     await client.query('TRUNCATE rental_events, rental_items, rentals, equipment, categories, users RESTART IDENTITY CASCADE');
     const userIds = [];
     for (const [email, name, phone, role] of USERS) {
-      // Хеш вычисляется для каждого пользователя: у каждого своя соль (дефект Д-01)
       const hash = await bcrypt.hash(SEED_PASSWORD, config.bcryptRounds);
       const { rows } = await client.query(
         `INSERT INTO users (email, password_hash, full_name, phone, role_id, created_at)
@@ -97,7 +91,6 @@ export async function seed(url = config.ownerDatabaseUrl) {
     for (const [i, [cl, mg, items, from, to, final]] of RENTALS.entries()) {
       const created = new Date(`${from}T10:00:00+02:00`);
       created.setDate(created.getDate() - 3);
-      // Заявки на будущие даты созданы не позже даты подготовки тестовых данных
       const latest = new Date('2026-10-26T10:00:00+02:00');
       if (created > latest) created.setTime(latest.getTime());
       const { rows } = await client.query(
@@ -109,7 +102,6 @@ export async function seed(url = config.ownerDatabaseUrl) {
       for (const inv of items) {
         await client.query('INSERT INTO rental_items VALUES ($1, $2, $3)', [rentalId, eq[inv].id, eq[inv].daily_price]);
       }
-      // История согласована с конечным состоянием: проходим путь жизненного цикла
       const steps = final === 'cancelled' ? ['new', 'cancelled'] : PATH.slice(0, PATH.indexOf(final) + 1);
       const t = new Date(created);
       for (const [k, step] of steps.entries()) {

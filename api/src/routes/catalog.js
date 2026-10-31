@@ -7,7 +7,6 @@ export const catalogRouter = Router();
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-// ФТ-05, ФТ-06: каталог с поиском, фильтром по категории и занятостью на выбранные даты
 catalogRouter.get('/equipment', async (req, res) => {
   const { q, category_id: categoryId, from, to, include_archived: archived } = req.query;
   if ((from && !DATE_RE.test(from)) || (to && !DATE_RE.test(to))) throw badRequest('Даты в формате ГГГГ-ММ-ДД');
@@ -40,7 +39,6 @@ catalogRouter.get('/equipment/:id', async (req, res) => {
 
 const EQUIPMENT_FIELDS = ['name', 'category_id', 'inventory_no', 'daily_price', 'deposit', 'condition', 'photo', 'is_active'];
 
-// ФТ-03, ФТ-04: каталог ведёт администратор; удаление заменено архивированием (is_active = false)
 catalogRouter.post('/equipment', allow('admin'), async (req, res) => {
   const b = req.body ?? {};
   const { rows } = await query(
@@ -64,13 +62,11 @@ catalogRouter.patch('/equipment/:id', allow('admin'), async (req, res) => {
 });
 
 catalogRouter.delete('/equipment/:id', allow('admin'), async (req, res) => {
-  // Единицу, входившую в аренды, удалить нельзя (RESTRICT) — её архивируют
   const { rowCount } = await query('DELETE FROM equipment WHERE id = $1', [req.params.id]);
   if (!rowCount) throw notFound();
   res.status(204).end();
 });
 
-// Список ответственных для фильтра аренд (ФТ-10); контакты сотрудников не раскрываются
 catalogRouter.get('/staff', allow('manager', 'admin'), async (_req, res) => {
   const { rows } = await query(
     `SELECT u.id, u.full_name FROM users u JOIN roles r ON r.id = u.role_id
@@ -79,7 +75,6 @@ catalogRouter.get('/staff', allow('manager', 'admin'), async (_req, res) => {
   res.json(rows);
 });
 
-// ФТ-23: справочник категорий
 catalogRouter.get('/categories', async (_req, res) => {
   const { rows } = await query(
     `SELECT c.id, c.name, count(e.id) FILTER (WHERE e.is_active) AS equipment_count

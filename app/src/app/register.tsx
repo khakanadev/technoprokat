@@ -1,4 +1,3 @@
-// Регистрация клиента (ФТ-01): роль «Клиент» назначает сервер
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
@@ -19,7 +18,6 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
 
-  // Проверка полей до отправки: сообщение указывает поле и причину (ПИ-07)
   function validate() {
     const e: Record<string, string> = {};
     if (!form.full_name.trim()) e.full_name = 'Укажите ФИО';

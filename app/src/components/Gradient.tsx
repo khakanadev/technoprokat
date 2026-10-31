@@ -1,6 +1,3 @@
-// Затемнение нижней части фотографии, чтобы текст поверх фото оставался читаемым.
-// На телефоне — CSS-градиент из стилей React Native (backgroundImage); react-native-web это свойство
-// не передаёт, поэтому в веб-версии градиент собирается из тонких полос.
 import { Platform, StyleSheet, View } from 'react-native';
 import { colors } from '../lib/theme';
 

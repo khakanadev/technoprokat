@@ -25,7 +25,6 @@ export function createApp() {
     res.json({ status: 'ok', version: process.env.npm_package_version ?? '1.0.0', schema: rows[0].schema });
   });
 
-  // Фотографии каталога
   app.use('/media', express.static(path.join(root, '..', 'media'), { maxAge: '7d' }));
 
   app.use('/api/auth', authRouter);

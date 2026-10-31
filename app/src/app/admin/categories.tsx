@@ -1,4 +1,3 @@
-// Справочник категорий (ФТ-23): добавление, переименование, удаление неиспользуемых
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';

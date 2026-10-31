@@ -1,4 +1,3 @@
-// Подтверждение необратимого действия (ПИ-05)
 import { useState } from 'react';
 import { Text } from 'react-native';
 import { type } from '../lib/theme';

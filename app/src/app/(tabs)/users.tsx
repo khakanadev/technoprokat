@@ -1,4 +1,3 @@
-// Управление пользователями и ролями — только администратор (ФТ-22)
 import { useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { UserPlus, Users as UsersIcon } from 'lucide-react-native';
@@ -57,7 +56,6 @@ export default function Users() {
   );
 }
 
-// Смена роли и блокировка с подтверждением (ПИ-05)
 function UserSheet({ user, isMe, onClose, onChanged }: { user: AdminUser; isMe: boolean; onClose: () => void; onChanged: () => void }) {
   const [role, setRole] = useState<Role>(user.role);
   const [confirm, setConfirm] = useState<null | 'role' | 'block'>(null);
@@ -65,7 +63,6 @@ function UserSheet({ user, isMe, onClose, onChanged }: { user: AdminUser; isMe: 
   const [passError, setPassError] = useState<string | null>(null);
   const [passDone, setPassDone] = useState(false);
 
-  // Временный пароль при утере доступа: администратор сообщает его пользователю лично
   async function setPassword() {
     setPassError(null);
     try {

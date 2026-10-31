@@ -21,7 +21,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  // Восстановление сессии: токен проверяется сервером (заблокированного пользователя не пустит)
   useEffect(() => {
     (async () => {
       const saved = await tokenStore.get();

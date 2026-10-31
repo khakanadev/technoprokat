@@ -1,5 +1,3 @@
-// Функциональные и интеграционные тесты (этап 3.1). Номера ТК совпадают с журналом тестирования (форма 5).
-// Запуск при работающей системе: npm test (переменные окружения — docs/INSTALL.md, раздел «Тесты»)
 import { after, beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import pg from 'pg';

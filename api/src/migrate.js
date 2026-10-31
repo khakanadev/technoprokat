@@ -1,5 +1,3 @@
-// Применяет пронумерованные миграции db/migrations/NNN_*.sql, которых ещё нет в schema_migrations.
-// Выполняется от имени владельца БД (OWNER_DATABASE_URL); каждая миграция — в отдельной транзакции.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

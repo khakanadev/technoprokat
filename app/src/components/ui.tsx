@@ -1,4 +1,3 @@
-// Базовые компоненты интерфейса. Единые размеры, отступы и состояния на всех формах (ПИ-03)
 import { forwardRef, type ReactNode } from 'react';
 import {
   ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View,
@@ -101,7 +100,6 @@ export function Card({ children, style, onPress, ...rest }: { children: ReactNod
   );
 }
 
-// Состояние аренды: нейтральные плашки, акцент — только у состояний, требующих действия менеджера
 const STATUS_STYLE: Record<StatusCode, { fg: string; bg: string }> = {
   new: { fg: colors.onAccent, bg: colors.accent },
   confirmed: { fg: colors.accent, bg: accentAlpha(0.14) },

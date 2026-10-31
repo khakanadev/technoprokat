@@ -1,4 +1,3 @@
-// Набор техники для одной заявки: клиент добавляет позиции из каталога и оформляет их одним листом
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { Equipment } from './api';
 

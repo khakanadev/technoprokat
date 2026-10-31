@@ -1,4 +1,3 @@
-// Добавление и изменение единицы техники администратором (ФТ-03, ФТ-04)
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { api, type Category, type Equipment } from '../lib/api';
@@ -24,7 +23,6 @@ function EquipmentForm({ visible, onClose, onSaved, categories, equipment }: Pro
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
 
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
   const money = (s: string) => Number(s.replace(',', '.'));

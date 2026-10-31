@@ -1,4 +1,3 @@
-// Общие средства тестов: запросы к API запущенной системы и прямые запросы к БД для сверки
 import pg from 'pg';
 import { seed, SEED_PASSWORD } from '../src/seed.js';
 
@@ -21,15 +20,12 @@ export const USERS = {
   client2: 'client2@mail.local',
 };
 
-// Каждый тест начинает с одинаковых тестовых данных
-// (идентификаторы пользователей пересоздаются, поэтому прежние токены сбрасываются)
 export async function reset() {
   await seed(ownerUrl);
   tokens.clear();
 }
 
 let ipCounter = 1;
-// Уникальный адрес клиента для каждого входа, чтобы ограничение частоты входа не влияло на другие тесты
 export const freshIp = () => `10.0.${Math.floor(ipCounter / 250)}.${(ipCounter++ % 250) + 1}`;
 
 export async function request(method, path, { token, body, ip } = {}) {
@@ -43,8 +39,8 @@ export async function request(method, path, { token, body, ip } = {}) {
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
-  let data = text;
-  try { data = JSON.parse(text); } catch { /* CSV и пустые ответы */ }
+  let data;
+  try { data = JSON.parse(text); } catch { data = text; }
   return { status: res.status, data, headers: res.headers };
 }
 

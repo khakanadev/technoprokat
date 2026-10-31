@@ -1,7 +1,4 @@
 #!/bin/sh
-# Восстановление БД из резервной копии (НТ-02, НТ-04).
-# Запуск: ./scripts/restore.sh backups/technoprokat_YYYYMMDD_HHMMSS.dump[.enc]
-# На время восстановления API останавливается, чтобы никто не записывал данные.
 set -eu
 cd "$(dirname "$0")/.."
 [ -f .env ] && . ./.env
@@ -19,7 +16,6 @@ case "$FILE" in
   *) cat "$FILE" ;;
 esac | docker compose exec -T db pg_restore -U technoprokat_owner -d technoprokat --clean --if-exists --no-owner --single-transaction
 
-# Права учётной записи приложения восстанавливаются вместе с объектами; проверяем их явно
 cat db/migrations/004_app_role.sql db/migrations/005_app_delete_grants.sql \
   | docker compose exec -T db psql -U technoprokat_owner -d technoprokat -q -v ON_ERROR_STOP=1 -f -
 

@@ -1,4 +1,3 @@
-// Нижняя навигация. Набор вкладок зависит от роли: пользователь не видит запрещённых разделов (ПИ-06)
 import { Tabs } from 'expo-router';
 import { BarChart3, ClipboardList, Package, User, Users } from 'lucide-react-native';
 import { useSession } from '../../lib/session';

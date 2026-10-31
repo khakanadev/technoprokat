@@ -9,15 +9,14 @@ export const badRequest = (msg) => new HttpError(400, msg);
 export const forbidden = (msg = 'Нет прав на операцию') => new HttpError(403, msg);
 export const notFound = (msg = 'Запись не найдена') => new HttpError(404, msg);
 
-// Коды SQLSTATE функций БД и ограничений целостности -> коды HTTP
 const PG_STATUS = {
   TP400: 400, TP403: 403, TP404: 404,
-  23505: 400, // UNIQUE
-  23503: 400, // FOREIGN KEY
-  23514: 400, // CHECK
-  23502: 400, // NOT NULL
-  '22P02': 400, // неверный формат значения
-  '22007': 400, '22008': 400, // неверная дата
+  23505: 400,
+  23503: 400,
+  23514: 400,
+  23502: 400,
+  '22P02': 400,
+  '22007': 400, '22008': 400,
   P0001: 400,
 };
 

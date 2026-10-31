@@ -1,4 +1,3 @@
-// Каталог (ФТ-05): поиск, фильтр по категории, крупные фотографии; клиент набирает технику в заявку
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';

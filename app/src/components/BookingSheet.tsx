@@ -1,4 +1,3 @@
-// Короткий путь оформления: даты → проверка занятости и сумма → готово (ФТ-06, ФТ-07, ФТ-08)
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -17,7 +16,6 @@ type Props = {
   edit?: { rentalId: number; dateFrom: string; dateTo: string };
 };
 
-// Лист монтируется при открытии: каждое открытие начинается с первого шага
 export function BookingSheet(props: Props) {
   return props.visible ? <BookingFlow {...props} /> : null;
 }
@@ -39,7 +37,6 @@ function BookingFlow({ visible, onClose, items, onRemove, onDone, edit }: Props)
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<RentalFull | null>(null);
-
 
   const end = addDays(start, length - 1);
   const perDay = items.reduce((s, i) => s + i.daily_price, 0);

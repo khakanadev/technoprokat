@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, space, type } from '../lib/theme';
 
-// Заголовок экрана: крупное название и необязательные действия справа
 export function ScreenHeader({ title, subtitle, right }: { title: string; subtitle?: string; right?: ReactNode }) {
   const insets = useSafeAreaInsets();
   return (

@@ -1,4 +1,3 @@
-// Отчёт по месяцам: таблица, столбчатый график и экспорт в CSV (ФТ-20, ФТ-21)
 import { useState } from 'react';
 import { Platform, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { File, Paths } from 'expo-file-system';

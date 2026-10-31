@@ -1,4 +1,3 @@
-// Журнал действий по всем арендам (ФТ-24)
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

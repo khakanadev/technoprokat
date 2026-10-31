@@ -4,7 +4,6 @@ import { allow, checkPasswordPolicy, hashPassword } from '../auth.js';
 import { badRequest, forbidden, notFound } from '../errors.js';
 import { validateProfile } from './auth.js';
 
-// ФТ-20, ФТ-21: отчёты для менеджера и администратора
 export const reportsRouter = Router();
 reportsRouter.use(allow('manager', 'admin'));
 
@@ -34,7 +33,6 @@ reportsRouter.get('/monthly.csv', async (req, res) => {
     ...rows.map((r) => `${MONTHS[r.month - 1]};${r.rentals_count};${r.closed_count};${r.revenue.toFixed(2).replace('.', ',')}`)];
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="report_${year}.csv"`);
-  // BOM нужен, чтобы Excel открыл файл UTF-8 с кириллицей
   res.send('﻿' + lines.join('\r\n') + '\r\n');
 });
 
@@ -43,7 +41,6 @@ reportsRouter.get('/top', async (_req, res) => {
   res.json(rows);
 });
 
-// ФТ-22, ФТ-24: управление пользователями и журнал действий — только администратор
 export const adminRouter = Router();
 adminRouter.use(allow('admin'));
 
@@ -73,7 +70,6 @@ adminRouter.post('/users', async (req, res) => {
 
 adminRouter.patch('/users/:id', async (req, res) => {
   const { role, is_active: isActive, password } = req.body ?? {};
-  // Временный пароль, который администратор сообщает пользователю при утере доступа
   let hash = null;
   if (password !== undefined) {
     checkPasswordPolicy(password);

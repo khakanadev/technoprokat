@@ -1,4 +1,3 @@
-// Карточка аренды: состояние, позиции, действия по роли, история и комментарии (ФТ-11 – ФТ-19)
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -186,7 +185,6 @@ export default function RentalScreen() {
   );
 }
 
-// Приём техники в два шага: состояние каждой единицы → подтверждение (ФТ-13)
 function ReceiveSheet({ visible, rental, onClose, onDone }: {
   visible: boolean; rental: RentalFull; onClose: () => void; onDone: (c: Record<number, Equipment['condition']>) => Promise<void>;
 }) {

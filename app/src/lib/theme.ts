@@ -1,4 +1,3 @@
-// Дизайн-система: тёмная тема, один акцентный цвет из конфигурации (app.json → extra.accentColor)
 import Constants from 'expo-constants';
 
 const extra = (Constants.expoConfig?.extra ?? {}) as { accentColor?: string };
@@ -17,7 +16,6 @@ export const colors = {
   overlay: 'rgba(0,0,0,0.6)',
 };
 
-// Полупрозрачный вариант акцента для фонов выделенных элементов
 export function accentAlpha(alpha: number) {
   const hex = colors.accent.replace('#', '');
   const n = parseInt(hex, 16);
@@ -37,5 +35,4 @@ export const type = {
   number: { fontVariant: ['tabular-nums' as const] },
 };
 
-// Минимальная зона нажатия 44 pt
 export const hit = 44;

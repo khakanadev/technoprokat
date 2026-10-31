@@ -1,4 +1,3 @@
-// Клиент REST API. Адрес сервера задаётся в app.json → extra.apiUrl (секретов в приложении нет, ЗИ-11)
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
@@ -10,7 +9,6 @@ export const mediaUrl = (photo?: string | null) => (photo ? `${API_URL}/media/${
 
 const TOKEN_KEY = 'technoprokat.token';
 
-// На телефоне токен хранится в защищённом хранилище ОС, в веб-версии — в localStorage
 export const tokenStore = {
   async get() {
     if (Platform.OS === 'web') return globalThis.localStorage?.getItem(TOKEN_KEY) ?? null;
@@ -79,7 +77,6 @@ function safeJson(text: string) {
   }
 }
 
-// Типы данных API
 export type Role = 'admin' | 'manager' | 'client';
 export type StatusCode = 'new' | 'confirmed' | 'issued' | 'returned' | 'closed' | 'cancelled';
 

@@ -1,5 +1,3 @@
--- 002_reference_data.sql — справочники ролей, состояний и правил переходов (таблица 1.4.9)
-
 INSERT INTO roles (id, code, title) VALUES
     (1, 'admin',   'Администратор'),
     (2, 'manager', 'Менеджер'),
@@ -13,8 +11,6 @@ INSERT INTO rental_statuses (id, code, title) VALUES
     (5, 'closed',    'Закрыта'),
     (6, 'cancelled', 'Отменена');
 
--- 14 правил: по два (менеджер, администратор) для подтвердить/выдать/принять/закрыть
--- и по три (клиент, менеджер, администратор) для двух переходов «отменить»
 INSERT INTO status_transitions (from_status_id, to_status_id, role_id) VALUES
     (1, 2, 2), (1, 2, 1),
     (2, 3, 2), (2, 3, 1),

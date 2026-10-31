@@ -7,7 +7,6 @@ import { authenticate, checkPasswordPolicy, hashPassword, signToken, verifyPassw
 
 export const authRouter = Router();
 
-// Не более 30 попыток входа с одного адреса за 5 минут (ЗИ-05)
 const loginLimiter = rateLimit({
   ...config.loginRateLimit,
   standardHeaders: 'draft-7',
@@ -23,7 +22,6 @@ export function validateProfile({ email, full_name: fullName, phone }) {
   if (phone && !/^\+?[0-9]{10,15}$/.test(phone)) throw badRequest('Телефон: от 10 до 15 цифр');
 }
 
-// ФТ-01: регистрация только с ролью «Клиент», роль из запроса игнорируется
 authRouter.post('/register', async (req, res) => {
   const { email, password, full_name: fullName, phone } = req.body ?? {};
   validateProfile(req.body ?? {});
@@ -39,7 +37,6 @@ authRouter.post('/register', async (req, res) => {
   res.status(201).json({ token: signToken(user), user });
 });
 
-// ФТ-02: сообщение не раскрывает, что именно неверно
 authRouter.post('/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body ?? {};
   if (!email || !password) throw badRequest('Введите адрес электронной почты и пароль');

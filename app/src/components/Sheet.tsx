@@ -1,5 +1,3 @@
-// Нижний лист (bottom sheet) с последовательными шагами: шаги сменяют друг друга внутри одного листа,
-// индикатор показывает, где находится пользователь (видимость состояния)
 import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, Easing, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

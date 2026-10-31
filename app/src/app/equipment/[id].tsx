@@ -1,4 +1,3 @@
-// Карточка техники: крупное фото, цена и залог; клиент оформляет аренду в два касания
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';

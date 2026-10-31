@@ -1,11 +1,3 @@
--- 003_functions_views.sql — смена состояния аренды и представления для отчётов
-
--- Ошибки бизнес-правил передаются приложению кодами SQLSTATE:
---   TP400 — недопустимые данные или занятость техники (HTTP 400)
---   TP403 — переход не разрешён роли или чужая аренда (HTTP 403)
---   TP404 — аренда не найдена (HTTP 404)
-
--- Проверка занятости: есть ли подтверждённая или выданная аренда другой единицы с пересечением периодов
 CREATE FUNCTION busy_equipment(p_rental_id bigint)
 RETURNS TABLE (equipment_id bigint, inventory_no text, name text)
 LANGUAGE sql STABLE AS $$
@@ -16,12 +8,10 @@ LANGUAGE sql STABLE AS $$
     JOIN rentals o       ON o.id = oi.rental_id
     JOIN equipment e     ON e.id = ri.equipment_id
     WHERE r.id = p_rental_id
-      AND o.status_id IN (2, 3)                         -- Подтверждена, Выдана
+      AND o.status_id IN (2, 3)
       AND o.date_from <= r.date_to AND o.date_to >= r.date_from;
 $$;
 
--- Смена состояния аренды: права роли, допустимость перехода, занятость, время выдачи,
--- запись события — в одной транзакции (НТ-06, НТ-07, ФТ-11 – ФТ-16)
 CREATE FUNCTION change_rental_status(
     p_rental_id  bigint,
     p_to_code    text,
@@ -51,7 +41,6 @@ BEGIN
         RAISE EXCEPTION 'Неизвестное состояние: %', p_to_code USING ERRCODE = 'TP400';
     END IF;
 
-    -- Блокировка строки аренды: параллельные смены состояния одной аренды выполняются по очереди
     SELECT * INTO v_rental FROM rentals WHERE id = p_rental_id FOR UPDATE;
     IF NOT FOUND THEN
         RAISE EXCEPTION 'Аренда % не найдена', p_rental_id USING ERRCODE = 'TP404';
@@ -76,8 +65,6 @@ BEGIN
     END IF;
 
     IF p_to_code = 'confirmed' THEN
-        -- Рекомендательная блокировка по каждой единице: два одновременных подтверждения
-        -- пересекающихся аренд одной техники выполняются последовательно (НТ-07)
         PERFORM pg_advisory_xact_lock(ri.equipment_id)
         FROM rental_items ri WHERE ri.rental_id = p_rental_id ORDER BY ri.equipment_id;
 
@@ -103,7 +90,6 @@ BEGIN
     VALUES (p_rental_id, p_actor_id, 'status', v_from_title || ' → ' || v_to_title, p_now);
 END $$;
 
--- Итог аренды вычисляется, а не хранится (ФТ-17)
 CREATE VIEW v_rental_totals AS
 SELECT r.id,
        r.client_id,
@@ -123,7 +109,6 @@ JOIN rental_statuses s ON s.id = r.status_id
 LEFT JOIN rental_items ri ON ri.rental_id = r.id
 GROUP BY r.id, s.code, s.title;
 
--- Отчёт по месяцам: число аренд по месяцу начала, выручка только по закрытым (ФТ-20)
 CREATE VIEW v_report_monthly AS
 SELECT extract(year FROM date_from)::int  AS year,
        extract(month FROM date_from)::int AS month,

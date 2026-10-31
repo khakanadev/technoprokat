@@ -1,5 +1,4 @@
 #!/bin/sh
-# Контрольные данные БД: число записей по таблицам и контрольная запись (для протокола восстановления, форма 3)
 set -eu
 cd "$(dirname "$0")/.."
 docker compose exec -T db psql -U technoprokat_owner -d technoprokat -P pager=off -c "
