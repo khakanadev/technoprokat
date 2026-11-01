@@ -21,6 +21,7 @@ async function loadRental(db, id, user) {
   );
   const rental = rows[0];
   if (!rental) throw notFound('Аренда не найдена');
+  // клиенту доступны только его аренды
   if (!isStaff(user) && rental.client_id !== user.id) throw forbidden('Это чужая аренда');
   return rental;
 }
@@ -130,6 +131,7 @@ rentalsRouter.patch('/:id', allow('client', 'manager', 'admin'), async (req, res
 
 const CONDITIONS = ['ok', 'service', 'broken'];
 
+// сам переход проверяет функция в базе; при возврате ещё сохраняем состояние каждой единицы
 rentalsRouter.post('/:id/status', async (req, res) => {
   const { to, conditions = {} } = req.body ?? {};
   if (typeof to !== 'string') throw badRequest('Не указано новое состояние');

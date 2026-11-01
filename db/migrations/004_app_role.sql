@@ -1,3 +1,4 @@
+-- права учётки приложения: без DDL, без удаления аренд и пользователей, история только на добавление
 GRANT USAGE ON SCHEMA public TO technoprokat_app;
 
 GRANT SELECT ON roles, rental_statuses, status_transitions, schema_migrations TO technoprokat_app;

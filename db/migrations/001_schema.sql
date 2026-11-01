@@ -20,6 +20,7 @@ CREATE TABLE rental_statuses (
     title  text NOT NULL
 );
 
+-- есть запись - роль может сделать переход, нет записи - нельзя
 CREATE TABLE status_transitions (
     from_status_id  smallint NOT NULL REFERENCES rental_statuses (id) ON DELETE RESTRICT,
     to_status_id    smallint NOT NULL REFERENCES rental_statuses (id) ON DELETE RESTRICT,
@@ -31,7 +32,7 @@ CREATE TABLE status_transitions (
 CREATE TABLE users (
     id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     email          text NOT NULL,
-    password_hash  text NOT NULL,
+    password_hash  text NOT NULL,  -- bcrypt, соль внутри хеша
     full_name      text NOT NULL CHECK (length(trim(full_name)) > 0),
     phone          text CHECK (phone ~ '^\+?[0-9]{10,15}$'),
     role_id        smallint NOT NULL REFERENCES roles (id) ON DELETE RESTRICT,
@@ -87,6 +88,7 @@ CREATE INDEX equipment_category_active_idx ON equipment (category_id) WHERE is_a
 CREATE INDEX rental_items_equipment_idx  ON rental_items (equipment_id);
 CREATE INDEX rental_events_rental_idx    ON rental_events (rental_id, created_at);
 
+-- историю аренды нельзя править задним числом
 CREATE FUNCTION forbid_event_update() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     RAISE EXCEPTION 'Записи истории аренды не изменяются' USING ERRCODE = 'P0001';

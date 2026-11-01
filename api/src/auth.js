@@ -16,6 +16,8 @@ export function checkPasswordPolicy(password) {
 export const signToken = (user) =>
   jwt.sign({ sub: user.id, role: user.role }, config.jwtSecret, { expiresIn: config.jwtTtl });
 
+// пользователь проверяется по базе на каждом запросе:
+// после блокировки или смены роли старый токен сразу перестаёт работать
 export async function authenticate(req, _res, next) {
   const header = req.headers.authorization ?? '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
@@ -37,5 +39,6 @@ export async function authenticate(req, _res, next) {
   next();
 }
 
+// allow(...roles) - список ролей, которым разрешён маршрут
 export const allow = (...roles) => (req, _res, next) =>
   roles.includes(req.user.role) ? next() : next(forbidden());
