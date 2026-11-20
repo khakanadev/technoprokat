@@ -37,7 +37,12 @@ export default function RentalScreen() {
   const [commentError, setCommentError] = useState<string | null>(null);
 
   if (!r) {
-    return <View style={{ flex: 1, backgroundColor: colors.bg, padding: space.xl, paddingTop: insets.top + 60 }}>{error ? <Banner text={error} /> : null}</View>;
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, padding: space.xl, paddingTop: insets.top + space.md, gap: space.lg }}>
+        <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/rentals'))} />
+        {error ? <Banner text={error} /> : null}
+      </View>
+    );
   }
 
   const change = async (to: StatusCode, extra?: object) => setData(await api<RentalFull>(`/rentals/${r.id}/status`, { method: 'POST', body: { to, ...extra } }));

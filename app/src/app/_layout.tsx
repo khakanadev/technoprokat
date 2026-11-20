@@ -27,8 +27,10 @@ function RootStack() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="equipment/[id]" />
         <Stack.Screen name="rental/[id]" />
-        <Stack.Screen name="admin/categories" />
-        <Stack.Screen name="admin/events" />
+        <Stack.Protected guard={user?.role === 'admin'}>
+          <Stack.Screen name="admin/categories" />
+          <Stack.Screen name="admin/events" />
+        </Stack.Protected>
       </Stack.Protected>
     </Stack>
   );

@@ -33,7 +33,7 @@ export default function Categories() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
-        <IconButton icon={ChevronLeft} label="Назад" onPress={() => router.back()} />
+        <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))} />
         <Text style={[type.h2, { flex: 1 }]}>Категории</Text>
         <IconButton icon={Plus} label="Новая категория" onPress={() => open('new')} />
       </View>

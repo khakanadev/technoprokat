@@ -28,7 +28,12 @@ export default function EquipmentScreen() {
   const [archiving, setArchiving] = useState(false);
 
   if (!e) {
-    return <View style={{ flex: 1, backgroundColor: colors.bg, padding: space.xl, paddingTop: insets.top + 60 }}>{error ? <Banner text={error} /> : null}</View>;
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg, padding: space.xl, paddingTop: insets.top + space.md, gap: space.lg }}>
+        <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/catalog'))} />
+        {error ? <Banner text={error} /> : null}
+      </View>
+    );
   }
   const inCart = cart.has(e.id);
   const bookingItems = inCart ? cart.items : [e];
@@ -40,7 +45,7 @@ export default function EquipmentScreen() {
           <Image source={{ uri: mediaUrl(e.photo) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
           <LinearGradientFallback from={0.5} />
           <View style={[styles.heroBar, { top: insets.top + space.sm }]}>
-            <IconButton icon={ChevronLeft} label="Назад" onPress={() => router.back()} />
+            <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/catalog'))} />
             {user?.role === 'admin' ? <IconButton icon={Pencil} label="Изменить" onPress={() => setEditing(true)} /> : null}
           </View>
           <View style={styles.heroText}>

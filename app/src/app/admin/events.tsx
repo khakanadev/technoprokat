@@ -15,7 +15,7 @@ export default function Events() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={[styles.header, { paddingTop: insets.top + space.sm }]}>
-        <IconButton icon={ChevronLeft} label="Назад" onPress={() => router.back()} />
+        <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))} />
         <Text style={type.h2}>Журнал действий</Text>
       </View>
       <FlatList
