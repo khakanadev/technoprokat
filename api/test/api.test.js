@@ -126,6 +126,8 @@ describe('Жизненный цикл аренды (диаграмма сост�
     assert.equal(res.status, 200);
     assert.equal(res.data.status_code, 'confirmed');
     assert.equal(res.data.manager_name, 'Ковалёва Анна Игоревна');
+    assert.equal(res.data.items.length, 1);
+    assert.ok(res.data.events.some((e) => e.type === 'status'));
   });
 
   test('ТК-14 ФТ-11, НТ-07: пересечение периодов отклоняется; соседний период (граница) разрешён', async () => {

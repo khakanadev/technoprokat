@@ -57,8 +57,8 @@ rentalsRouter.get('/', async (req, res) => {
   res.json(rows);
 });
 
-rentalsRouter.get('/:id', async (req, res) => {
-  const rental = await loadRental({ query }, req.params.id, req.user);
+async function loadRentalFull(id, user) {
+  const rental = await loadRental({ query }, id, user);
   const [items, events] = await Promise.all([
     query(
       `SELECT ri.equipment_id, ri.price_per_day, e.name, e.inventory_no, e.photo, e.condition, e.deposit
@@ -73,8 +73,12 @@ rentalsRouter.get('/:id', async (req, res) => {
       [rental.id],
     ),
   ]);
-  if (!isStaff(req.user)) delete rental.client_email;
-  res.json({ ...rental, items: items.rows, events: events.rows });
+  if (!isStaff(user)) delete rental.client_email;
+  return { ...rental, items: items.rows, events: events.rows };
+}
+
+rentalsRouter.get('/:id', async (req, res) => {
+  res.json(await loadRentalFull(req.params.id, req.user));
 });
 
 function validateRentalInput({ date_from: from, date_to: to, equipment_ids: ids }) {
@@ -109,7 +113,7 @@ rentalsRouter.post('/', allow('client'), async (req, res) => {
     );
     return rows[0].id;
   });
-  res.status(201).json(await loadRental({ query }, id, req.user));
+  res.status(201).json(await loadRentalFull(id, req.user));
 });
 
 rentalsRouter.patch('/:id', allow('client', 'manager', 'admin'), async (req, res) => {
@@ -126,7 +130,7 @@ rentalsRouter.patch('/:id', allow('client', 'manager', 'admin'), async (req, res
       [rental.id, req.user.id],
     );
   });
-  res.json(await loadRental({ query }, req.params.id, req.user));
+  res.json(await loadRentalFull(req.params.id, req.user));
 });
 
 const CONDITIONS = ['ok', 'service', 'broken'];
@@ -148,7 +152,7 @@ rentalsRouter.post('/:id/status', async (req, res) => {
       }
     }
   });
-  res.json(await loadRental({ query }, req.params.id, req.user));
+  res.json(await loadRentalFull(req.params.id, req.user));
 });
 
 rentalsRouter.post('/:id/comments', async (req, res) => {
