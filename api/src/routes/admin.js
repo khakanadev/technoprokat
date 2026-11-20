@@ -42,6 +42,8 @@ reportsRouter.get('/top', async (_req, res) => {
 });
 
 export const adminRouter = Router();
+
+const ROLES = ['admin', 'manager', 'client'];
 adminRouter.use(allow('admin'));
 
 adminRouter.get('/users', async (req, res) => {
@@ -59,6 +61,7 @@ adminRouter.post('/users', async (req, res) => {
   const { email, password, full_name: fullName, phone, role } = req.body ?? {};
   validateProfile(req.body ?? {});
   checkPasswordPolicy(password);
+  if (!ROLES.includes(role)) throw badRequest('Укажите роль: администратор, менеджер или клиент');
   const { rows } = await query(
     `INSERT INTO users (email, password_hash, full_name, phone, role_id)
      VALUES ($1, $2, $3, $4, (SELECT id FROM roles WHERE code = $5))
@@ -70,6 +73,8 @@ adminRouter.post('/users', async (req, res) => {
 
 adminRouter.patch('/users/:id', async (req, res) => {
   const { role, is_active: isActive, password } = req.body ?? {};
+  if (role !== undefined && !ROLES.includes(role)) throw badRequest('Неизвестная роль');
+  if (isActive !== undefined && typeof isActive !== 'boolean') throw badRequest('Неверное значение блокировки');
   let hash = null;
   if (password !== undefined) {
     checkPasswordPolicy(password);
@@ -87,7 +92,6 @@ adminRouter.patch('/users/:id', async (req, res) => {
     [req.params.id, role ?? null, isActive ?? null, hash],
   );
   if (!rows.length) throw notFound('Пользователь не найден');
-  if (role && rows[0].role !== role) throw badRequest('Неизвестная роль');
   res.json(rows[0]);
 });
 

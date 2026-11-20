@@ -88,6 +88,9 @@ describe('Аренда: создание и доступ', () => {
     assert.equal(oneDay.data.days, 1);
     const empty = await request('POST', '/rentals', { token: await login('client'), body: { date_from: '2026-12-05', date_to: '2026-12-06', equipment_ids: [] } });
     assert.equal(empty.status, 400);
+    const past = await createRental('client', ['ЭИ-001'], '2020-01-01', '2020-01-02');
+    assert.equal(past.status, 400);
+    assert.equal(past.data.error, 'Дата начала не может быть в прошлом');
   });
 
   test('ТК-10 ФТ-07, ФТ-04: архивная техника не принимается в заявку (негативный)', async () => {
@@ -238,6 +241,7 @@ describe('История, поиск, отчёты', () => {
     const c = await request('POST', `/rentals/${own}/comments`, { token: await login('client'), body: { text: 'Нужен удлинитель' } });
     assert.equal(c.status, 201);
     assert.equal((await request('POST', `/rentals/${own}/comments`, { token: await login('client'), body: { text: '   ' } })).status, 400);
+    assert.equal((await request('POST', `/rentals/${own}/comments`, { token: await login('client'), body: { text: 5 } })).status, 400);
     await assert.rejects(db.query('UPDATE rental_events SET text = $1 WHERE id = $2', ['подмена', c.data.id]), /не изменяются/);
   });
 
@@ -261,6 +265,10 @@ describe('История, поиск, отчёты', () => {
     const e = await request('GET', `/equipment?q=${encodeURIComponent("'; DROP TABLE equipment; --")}`, { token: await login('client') });
     assert.equal(e.status, 200);
     assert.equal((await db.query('SELECT count(*)::int AS n FROM equipment')).rows[0].n, 16);
+    const huge = await request('GET', '/equipment/99999999999999999999', { token: await login('client') });
+    assert.equal(huge.status, 400);
+    const bad = await request('GET', '/equipment?category_id=abc', { token: await login('client') });
+    assert.equal(bad.data.error, 'Неверный формат значения');
   });
 
   test('ТК-25 ФТ-20, ФТ-21: отчёт совпадает с прямым запросом к БД; CSV в UTF-8 с BOM; клиенту отчёт недоступен', async () => {
@@ -282,8 +290,12 @@ describe('Каталог и справочники', () => {
     const admin = await login('admin');
     const cat = (await db.query('SELECT id FROM categories LIMIT 1')).rows[0].id;
     const base = { name: 'Тестовая единица', category_id: cat, deposit: 0 };
-    assert.equal((await request('POST', '/equipment', { token: admin, body: { ...base, inventory_no: 'ТЕСТ-1', daily_price: 0 } })).status, 201);
-    assert.equal((await request('POST', '/equipment', { token: admin, body: { ...base, inventory_no: 'ТЕСТ-2', daily_price: -0.01 } })).status, 400);
+    const zero = await request('POST', '/equipment', { token: admin, body: { ...base, inventory_no: 'ТЕСТ-1', daily_price: 0 } });
+    assert.equal(zero.status, 201);
+    assert.ok(zero.data.category, 'в ответе есть название категории');
+    const negative = await request('POST', '/equipment', { token: admin, body: { ...base, inventory_no: 'ТЕСТ-2', daily_price: -0.01 } });
+    assert.equal(negative.status, 400);
+    assert.equal(negative.data.error, 'Цена за сутки не может быть отрицательной');
     assert.equal((await request('POST', '/equipment', { token: admin, body: { ...base, inventory_no: 'ТЕСТ-1', daily_price: 10 } })).status, 400, 'инвентарный номер уникален');
   });
 

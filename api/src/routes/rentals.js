@@ -7,6 +7,7 @@ import { badRequest, forbidden, notFound } from '../errors.js';
 export const rentalsRouter = Router();
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Kaliningrad' });
 const isStaff = (user) => user.role === 'admin' || user.role === 'manager';
 
 async function loadRental(db, id, user) {
@@ -84,6 +85,7 @@ rentalsRouter.get('/:id', async (req, res) => {
 function validateRentalInput({ date_from: from, date_to: to, equipment_ids: ids }) {
   if (!DATE_RE.test(from ?? '') || !DATE_RE.test(to ?? '')) throw badRequest('Укажите даты начала и окончания');
   if (to < from) throw badRequest('Дата окончания не может быть раньше даты начала');
+  if (from < today()) throw badRequest('Дата начала не может быть в прошлом');
   if (!Array.isArray(ids) || !ids.length) throw badRequest('Выберите хотя бы одну единицу техники');
   return [...new Set(ids.map(Number))];
 }
@@ -156,7 +158,7 @@ rentalsRouter.post('/:id/status', async (req, res) => {
 });
 
 rentalsRouter.post('/:id/comments', async (req, res) => {
-  const text = req.body?.text?.trim();
+  const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
   if (!text) throw badRequest('Комментарий не может быть пустым');
   if (text.length > 2000) throw badRequest('Комментарий длиннее 2000 символов');
   const rental = await loadRental({ query }, req.params.id, req.user);

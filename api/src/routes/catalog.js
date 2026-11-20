@@ -28,25 +28,31 @@ catalogRouter.get('/equipment', async (req, res) => {
   res.json(rows);
 });
 
-catalogRouter.get('/equipment/:id', async (req, res) => {
+async function getEquipment(id) {
   const { rows } = await query(
     `SELECT e.*, c.name AS category FROM equipment e JOIN categories c ON c.id = e.category_id WHERE e.id = $1`,
-    [req.params.id],
+    [id],
   );
   if (!rows.length) throw notFound();
-  res.json(rows[0]);
-});
+  return rows[0];
+}
+
+const text = (v) => (typeof v === 'string' ? v.trim() : null);
 
 const EQUIPMENT_FIELDS = ['name', 'category_id', 'inventory_no', 'daily_price', 'deposit', 'condition', 'photo', 'is_active'];
+
+catalogRouter.get('/equipment/:id', async (req, res) => {
+  res.json(await getEquipment(req.params.id));
+});
 
 catalogRouter.post('/equipment', allow('admin'), async (req, res) => {
   const b = req.body ?? {};
   const { rows } = await query(
     `INSERT INTO equipment (name, category_id, inventory_no, daily_price, deposit, condition, photo)
-     VALUES ($1, $2, $3, $4, coalesce($5, 0), coalesce($6, 'ok'), $7) RETURNING *`,
-    [b.name, b.category_id, b.inventory_no, b.daily_price, b.deposit, b.condition, b.photo ?? null],
+     VALUES ($1, $2, $3, $4, coalesce($5, 0), coalesce($6, 'ok'), $7) RETURNING id`,
+    [text(b.name), b.category_id, text(b.inventory_no), b.daily_price, b.deposit, b.condition, b.photo ?? null],
   );
-  res.status(201).json(rows[0]);
+  res.status(201).json(await getEquipment(rows[0].id));
 });
 
 catalogRouter.patch('/equipment/:id', allow('admin'), async (req, res) => {
@@ -54,11 +60,11 @@ catalogRouter.patch('/equipment/:id', allow('admin'), async (req, res) => {
   if (!fields.length) throw badRequest('Нет полей для изменения');
   const sets = fields.map((f, i) => `${f} = $${i + 2}`).join(', ');
   const { rows } = await query(
-    `UPDATE equipment SET ${sets} WHERE id = $1 RETURNING *`,
-    [req.params.id, ...fields.map((f) => req.body[f])],
+    `UPDATE equipment SET ${sets} WHERE id = $1 RETURNING id`,
+    [req.params.id, ...fields.map((f) => (f === 'name' || f === 'inventory_no' ? text(req.body[f]) : req.body[f]))],
   );
   if (!rows.length) throw notFound();
-  res.json(rows[0]);
+  res.json(await getEquipment(rows[0].id));
 });
 
 catalogRouter.delete('/equipment/:id', allow('admin'), async (req, res) => {
@@ -85,12 +91,12 @@ catalogRouter.get('/categories', async (_req, res) => {
 });
 
 catalogRouter.post('/categories', allow('admin'), async (req, res) => {
-  const { rows } = await query('INSERT INTO categories (name) VALUES ($1) RETURNING *', [req.body?.name?.trim()]);
+  const { rows } = await query('INSERT INTO categories (name) VALUES ($1) RETURNING *', [text(req.body?.name)]);
   res.status(201).json(rows[0]);
 });
 
 catalogRouter.patch('/categories/:id', allow('admin'), async (req, res) => {
-  const { rows } = await query('UPDATE categories SET name = $2 WHERE id = $1 RETURNING *', [req.params.id, req.body?.name?.trim()]);
+  const { rows } = await query('UPDATE categories SET name = $2 WHERE id = $1 RETURNING *', [req.params.id, text(req.body?.name)]);
   if (!rows.length) throw notFound();
   res.json(rows[0]);
 });
