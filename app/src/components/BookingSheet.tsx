@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { CalendarCheck, CircleCheck, Minus, Plus, Trash2 } from 'lucide-react-native';
 import { api, mediaUrl, type Equipment, type RentalFull } from '../lib/api';
-import { addDays, dayMonth, days, isoDate, parseDate, rub, weekday } from '../lib/format';
+import { addDays, dayMonth, days, isoDate, parseDate, plural, rub, weekday } from '../lib/format';
 import { colors, radius, space, type } from '../lib/theme';
 import { Sheet } from './Sheet';
 import { Banner, Button, Chip, Divider, Row } from './ui';
@@ -82,7 +82,7 @@ function BookingFlow({ visible, onClose, items, onRemove, onDone, edit }: Props)
       visible={visible}
       onClose={() => (created ? onDone(created) : onClose())}
       title={titles[step]}
-      subtitle={step < 2 ? `${items.length} ${items.length === 1 ? 'позиция' : 'позиции'} · ${rub(perDay)} в сутки` : undefined}
+      subtitle={step < 2 ? `${items.length} ${plural(items.length, 'позиция', 'позиции', 'позиций')} · ${rub(perDay)} в сутки` : undefined}
       step={step}
       steps={3}
       onBack={step === 1 ? () => setStep(0) : undefined}

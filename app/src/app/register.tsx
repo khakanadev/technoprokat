@@ -29,9 +29,9 @@ export default function Register() {
   }
 
   async function submit() {
+    setError(null);
     if (!validate()) return;
     setBusy(true);
-    setError(null);
     try {
       await signUp({ ...form, email: form.email.trim(), phone: form.phone || undefined });
     } catch (e) {
@@ -44,7 +44,7 @@ export default function Register() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: insets.top + space.md }]} keyboardShouldPersistTaps="handled">
-        <IconButton icon={ChevronLeft} label="Назад" onPress={() => router.back()} />
+        <IconButton icon={ChevronLeft} label="Назад" onPress={() => (router.canGoBack() ? router.back() : router.replace('/login'))} />
         <View style={{ gap: space.xs }}>
           <Text style={type.title}>Регистрация</Text>
           <Text style={type.small}>Данные нужны только для оформления аренды и связи с вами.</Text>

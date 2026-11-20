@@ -81,6 +81,7 @@ export const Field = forwardRef<TextInputInstance, TextInputProps & { label: str
         <Text style={type.caption}>{label}</Text>
         <TextInput
           ref={ref}
+          accessibilityLabel={label}
           placeholderTextColor={colors.textDim}
           style={[styles.input, error ? { borderColor: colors.danger } : null, style]}
           {...props}

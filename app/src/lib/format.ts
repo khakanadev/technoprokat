@@ -17,15 +17,19 @@ export function isoDate(d: Date) {
 
 export const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 
-export const dayMonth = (s: string | Date) => {
+export const dayMonth = (s: string | Date, withYear = false) => {
   const d = typeof s === 'string' ? parseDate(s) : s;
-  return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
+  const year = withYear || d.getFullYear() !== new Date().getFullYear() ? ` ${d.getFullYear()}` : '';
+  return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}${year}`;
 };
 
 export const weekday = (d: Date) => WEEKDAYS[d.getDay()];
 
 export function period(from: string, to: string) {
-  return from === to ? dayMonth(from) : `${dayMonth(from)} — ${dayMonth(to)}`;
+  if (from === to) return dayMonth(from);
+  const sameYear = from.slice(0, 4) === to.slice(0, 4);
+  const start = sameYear ? `${parseDate(from).getDate()} ${MONTHS_GEN[parseDate(from).getMonth()]}` : dayMonth(from, true);
+  return `${start} — ${dayMonth(to)}`;
 }
 
 export function dateTime(s: string) {

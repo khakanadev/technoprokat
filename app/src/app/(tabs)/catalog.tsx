@@ -10,7 +10,7 @@ import { EquipmentEditor } from '../../components/EquipmentEditor';
 import { Banner, Button, Chip, Empty, IconButton } from '../../components/ui';
 import { mediaUrl, type Category, type Equipment } from '../../lib/api';
 import { useCart } from '../../lib/cart';
-import { rub } from '../../lib/format';
+import { plural, rub } from '../../lib/format';
 import { useSession } from '../../lib/session';
 import { colors, radius, space, type } from '../../lib/theme';
 import { useApi } from '../../lib/useApi';
@@ -101,7 +101,7 @@ export default function Catalog() {
       {isClient && cart.items.length ? (
         <View style={styles.cartBar}>
           <View style={{ flex: 1 }}>
-            <Text style={type.h3}>{cart.items.length} {cart.items.length === 1 ? 'позиция' : cart.items.length < 5 ? 'позиции' : 'позиций'}</Text>
+            <Text style={type.h3}>{cart.items.length} {plural(cart.items.length, 'позиция', 'позиции', 'позиций')}</Text>
             <Text style={[type.small, type.number]}>{rub(perDay)} в сутки</Text>
           </View>
           <Button title="Оформить" onPress={() => setBooking(true)} compact />
